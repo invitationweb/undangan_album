@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wedding Album - Bela & Candra</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Special+Elite&family=Cormorant+Garamond:ital,wght@0,600;1,400&family=Homemade+Apple&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <style>
+        :root {
+            --paper-color: #f4eee0;
+            --ink-color: #3e362e;
+            --accent-color: #a68a64;
+        }
+
+        body {
+            background-color: #1a1512;
+            color: var(--ink-color);
+            font-family: 'Special Elite', system-ui;
+            margin: 0;
+            overflow-x: hidden;
+        }
+
+        /* Film Grain Effect */
+        .grain-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: url('https://www.transparenttextures.com/patterns/stardust.png');
+            opacity: 0.08;
+            pointer-events: none;
+            z-index: 9998;
+            animation: grain 0.5s steps(10) infinite;
+        }
+        @keyframes grain {
+            0%, 100% { transform: translate(0,0); }
+            10% { transform: translate(-1%,-1%); }
+            30% { transform: translate(1%,1%); }
+            50% { transform: translate(-0.5%,0.5%); }
+            70% { transform: translate(0.5%,-0.5%); }
+        }
+
+        .bg-paper {
+            background-color: var(--paper-color);
+            background-image: url('https://www.transparenttextures.com/patterns/paper-fibers.png');
+        }
+
+        /* Polaroid & Tape */
+        .polaroid {
+            background: white;
+            padding: 12px 12px 45px 12px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+            transform: rotate(var(--rotation, 0deg));
+            transition: 0.5s ease-in-out;
+        }
+        .polaroid img { width: 100%; height: 220px; object-fit: cover; }
+        .tape {
+            position: absolute;
+            width: 80px; height: 25px;
+            background: rgba(227, 197, 152, 0.4);
+            top: -10px; left: 50%;
+            transform: translateX(-50%) rotate(-2deg);
+            z-index: 10;
+        }
+
+        /* Wedding Gift Card */
+        .gift-card {
+            background: linear-gradient(135deg, #3e362e 0%, #25201c 100%);
+            color: #d4c7b0;
+            border-radius: 15px;
+            padding: 25px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.3);
+        }
+        .gift-card::after {
+            content: "\f1f0";
+            font-family: "Font Awesome 6 Free";
+            font-weight: 900;
+            position: absolute;
+            right: -20px; bottom: -20px;
+            font-size: 8rem;
+            opacity: 0.05;
+        }
+
+        /* Film Strip */
+        .film-strip {
+            background: #1a1512;
+            padding: 20px 0;
+            position: relative;
+            border-top: 5px solid #000;
+            border-bottom: 5px solid #000;
+        }
+        .film-strip::before, .film-strip::after {
+            content: " ";
+            display: block;
+            height: 15px;
+            background-image: radial-gradient(circle, #f4eee0 40%, transparent 40%);
+            background-size: 30px 30px;
+            background-position: center;
+        }
+
+        /* Gallery Grid */
+        .gallery-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+        }
+        .gallery-item {
+            position: relative;
+            overflow: hidden;
+            border: 4px solid white;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+
+        /* Navigation */
+        .nav-bar {
+            position: fixed;
+            bottom: 25px; left: 50%;
+            transform: translateX(-50%);
+            background: rgba(62, 54, 46, 0.95);
+            backdrop-filter: blur(5px);
+            padding: 12px 25px;
+            border-radius: 40px;
+            display: flex; gap: 20px;
+            z-index: 1000;
+        }
+        .nav-btn { color: #a68a64; font-size: 1.2rem; transition: 0.3s; }
+        .nav-btn.active { color: #f4eee0; transform: translateY(-5px); }
+
+        /* General Utilities */
+        .font-hand { font-family: 'Homemade Apple', cursive; }
+        .font-serif { font-family: 'Cormorant Garamond', serif; }
+        .max-mobile { max-width: 480px; margin: 0 auto; background: var(--paper-color); min-height: 100vh; position: relative; }
+        
+        #cover {
+            position: fixed; inset: 0; background: #1a1512;
+            z-index: 9999; display: flex; align-items: center; justify-content: center;
+            transition: 1s cubic-bezier(0.85, 0, 0.15, 1);
+        }
+        .cover-hidden { transform: translateY(-100%); pointer-events: none; }
+
+        .btn-copy {
+            background: #a68a64; color: #1a1512;
+            padding: 4px 12px; font-size: 0.7rem;
+            border-radius: 4px; cursor: pointer;
+            transition: 0.2s;
+        }
+        .btn-copy:active { transform: scale(0.9); }
+
+        .toast {
+            position: fixed; top: 20px; left: 50%; transform: translateX(-50%);
+            background: #3e362e; color: #f4eee0; padding: 10px 20px;
+            border-radius: 5px; z-index: 10002; display: none;
+        }
+
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
+</head>
+<body class="bg-paper overflow-hidden">
+    <div class="grain-overlay"></div>
+    <div id="toast" class="toast">Berhasil disalin!</div>
+
+    <!-- Background Music -->
+    <audio id="bgm" loop>
+        <source src="music.mp3" type="audio/mpeg">
+    </audio>
+
+    <!-- Cover Layer -->
+    <div id="cover">
+        <div class="text-center p-6 flex flex-col items-center">
+            <i class="fas fa-video text-white/20 text-4xl mb-6"></i>
+            <h2 class="text-[#d4c7b0] tracking-[8px] uppercase text-[10px] mb-4">A Cinematic Love Story</h2>
+            <h1 class="font-hand text-[#d4c7b0] text-5xl mb-8">Bela & Candra</h1>
+            <div class="polaroid" style="--rotation: -2deg; width: 220px; color: #333;">
+                <img src="FOTO (5).jpg">
+                <p class="mt-2 font-hand text-lg">Special Screening</p>
+            </div>
+            <div class="mt-8 text-[#d4c7b0]/60 text-[10px] uppercase tracking-widest italic">
+                Saksikan awal dari selamanya
+            </div>
+            <button onclick="startInvitation()" class="mt-8 border-2 border-[#d4c7b0] text-[#d4c7b0] px-8 py-3 uppercase tracking-widest text-xs hover:bg-[#d4c7b0] hover:text-[#1a1512] transition-all">
+                Buka Undangan
+            </button>
+        </div>
+    </div>
+
+    <!-- Main Container -->
+    <div id="main-scroll" class="max-mobile shadow-2xl">
+        
+        <!-- Navigation Bar -->
+        <nav class="nav-bar">
+            <a href="#home" class="nav-btn active"><i class="fas fa-home"></i></a>
+            <a href="#story" class="nav-btn"><i class="fas fa-film"></i></a>
+            <a href="#event" class="nav-btn"><i class="fas fa-calendar-alt"></i></a>
+            <a href="#gallery" class="nav-btn"><i class="fas fa-images"></i></a>
+            <a href="#gift" class="nav-btn"><i class="fas fa-wallet"></i></a>
+        </nav>
+
+        <!-- Home Section -->
+        <section id="home" class="pt-24 px-8 text-center min-h-screen flex flex-col justify-start">
+            <div data-aos="fade-up">
+                <p class="font-serif italic text-xl mb-4 text-[#a68a64]">Assalamu’alaikum Warahmatullahi Wabarakatuh</p>
+                <div class="px-4 mb-10 text-sm leading-relaxed opacity-80">
+                    "Maka di antara tanda-tanda kekuasaan-Nya ialah Dia menciptakan untukmu istri-istri dari jenismu sendiri, supaya kamu cenderung dan merasa tenteram kepadanya."
+                    <br><span class="font-bold text-[10px] uppercase mt-2 block">— Ar-Rum: 21</span>
+                </div>
+
+                <h2 class="text-4xl font-hand mb-2">Bela & Candra</h2>
+                <p class="text-[10px] tracking-[4px] uppercase mb-10 opacity-60">Sabtu, 25 Oktober 2026</p>
+
+                <div class="flex justify-center gap-4 mb-12">
+                    <div class="text-center bg-white p-3 rounded shadow-sm w-16">
+                        <span id="d" class="block text-xl font-bold">0</span>
+                        <span class="text-[8px] uppercase">Hari</span>
+                    </div>
+                    <div class="text-center bg-white p-3 rounded shadow-sm w-16">
+                        <span id="h" class="block text-xl font-bold">0</span>
+                        <span class="text-[8px] uppercase">Jam</span>
+                    </div>
+                    <div class="text-center bg-white p-3 rounded shadow-sm w-16">
+                        <span id="m" class="block text-xl font-bold">0</span>
+                        <span class="text-[8px] uppercase">Menit</span>
+                    </div>
+                </div>
+
+                <div class="polaroid mx-auto relative" style="--rotation: 3deg; width: 85%;">
+                    <div class="tape"></div>
+                    <img src="foto (2).jpg">
+                    <p class="mt-2 font-hand text-lg text-[#333]">The Perfect Frame</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Story Section (Film Strip) -->
+        <section id="story" class="py-20 overflow-hidden">
+            <div class="px-8 mb-12 text-center" data-aos="fade-up">
+                <h2 class="font-hand text-4xl mb-4">The Plot Twist</h2>
+                <p class="text-sm italic opacity-70">
+                    Setiap film memiliki alur cerita, namun cerita kami adalah skenario terbaik yang ditulis oleh Sang Pencipta.
+                </p>
+            </div>
+            <div class="film-strip">
+                <div class="flex gap-4 px-4 overflow-x-auto no-scrollbar py-4">
+                    <div class="min-w-[200px] bg-white p-2" data-aos="flip-left">
+                        <img src="foto (3).jpg" class="h-40 w-full object-cover grayscale">
+                        <p class="text-[10px] mt-2 font-bold uppercase">Scene 1: Pertemuan</p>
+                        <p class="text-[8px] opacity-60">Takdir yang membawa kami dalam satu ruang lingkup yang sama.</p>
+                    </div>
+                    <div class="min-w-[200px] bg-white p-2" data-aos="flip-left" data-aos-delay="100">
+                        <img src="foto (2).webp" class="h-40 w-full object-cover grayscale">
+                        <p class="text-[10px] mt-2 font-bold uppercase">Scene 2: Komitmen</p>
+                        <p class="text-[8px] opacity-60">Bukan tentang siapa yang datang lebih awal, tapi siapa yang bertahan.</p>
+                    </div>
+                    <div class="min-w-[200px] bg-white p-2" data-aos="flip-left" data-aos-delay="200">
+                        <img src="foto (1).jpg" class="h-40 w-full object-cover grayscale">
+                        <p class="text-[10px] mt-2 font-bold uppercase">Scene 3: Khitbah</p>
+                        <p class="text-[8px] opacity-60">Langkah serius untuk menyatukan dua keluarga dalam doa.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Event Section -->
+        <section id="event" class="py-20 px-8 bg-black/5">
+            <h2 class="text-center font-hand text-4xl mb-4">Waktu Tayang</h2>
+            <p class="text-center text-[10px] tracking-widest uppercase mb-12 opacity-60">Save our special moment</p>
+            
+            <div class="border-l-2 border-[#a68a64] pl-6 space-y-12">
+                <div data-aos="fade-up">
+                    <div class="flex items-center gap-2 mb-2">
+                        <i class="fas fa-ring text-[#a68a64]"></i>
+                        <h3 class="font-bold text-lg uppercase tracking-widest">Akad Nikah</h3>
+                    </div>
+                    <p class="text-sm opacity-70">Sabtu, 25 Oktober 2026</p>
+                    <p class="text-sm opacity-70">08.00 - 10.00 WIB</p>
+                    <p class="text-xs mt-4 italic font-serif">Masjid Agung Al-Barkah, Bekasi</p>
+                </div>
+                <div data-aos="fade-up">
+                    <div class="flex items-center gap-2 mb-2">
+                        <i class="fas fa-glass-cheers text-[#a68a64]"></i>
+                        <h3 class="font-bold text-lg uppercase tracking-widest">Resepsi</h3>
+                    </div>
+                    <p class="text-sm opacity-70">Sabtu, 25 Oktober 2026</p>
+                    <p class="text-sm opacity-70">11.00 - Selesai</p>
+                    <p class="text-xs mt-4 italic font-serif">Ballroom Hotel Santika, Bekasi</p>
+                    <a href="https://maps.google.com" target="_blank" class="inline-block mt-4 text-[10px] border border-[#a68a64] px-4 py-2 uppercase font-bold text-[#a68a64] hover:bg-[#a68a64] hover:text-white transition-all">Buka Petunjuk Lokasi</a>
+                </div>
+            </div>
+        </section>
+
+        <!-- Gallery Section -->
+        <section id="gallery" class="py-20 px-8">
+            <div class="text-center mb-12" data-aos="fade-up">
+                <h2 class="font-hand text-4xl mb-2">Behind The Scenes</h2>
+                <p class="text-[10px] opacity-60 uppercase tracking-widest">Gallery Of Us</p>
+            </div>
+            
+            <div class="gallery-grid">
+                <div class="gallery-item" data-aos="zoom-in">
+                    <img src="FOTO (4).jpg" class="w-full h-40 object-cover">
+                </div>
+                <div class="gallery-item mt-8" data-aos="zoom-in" data-aos-delay="100">
+                    <img src="FOTO (5).jpg" class="w-full h-40 object-cover">
+                </div>
+                <div class="gallery-item -mt-4" data-aos="zoom-in" data-aos-delay="200">
+                    <img src="FOTO (6).jpg" class="w-full h-60 object-cover">
+                </div>
+                <div class="gallery-item mt-4" data-aos="zoom-in" data-aos-delay="300">
+                    <img src="FOTO (6).jpg" class="w-full h-52 object-cover">
+                </div>
+            </div>
+            
+            <div class="mt-12 text-center" data-aos="fade-up">
+                <p class="text-xs italic font-serif opacity-70 px-4">
+                    "Dalam setiap frame yang kita tangkap, tersimpan janji untuk saling menjaga dan mencintai selamanya."
+                </p>
+            </div>
+        </section>
+
+        <!-- Gift Section (Wallet) -->
+        <section id="gift" class="py-20 px-8 bg-[#3e362e]/5">
+            <div class="text-center mb-10" data-aos="fade-up">
+                <i class="fas fa-wallet text-3xl text-[#a68a64] mb-4"></i>
+                <h2 class="font-hand text-4xl mb-2">Angpao Digital</h2>
+                <p class="text-xs italic opacity-70 px-6">
+                    Kehadiran Anda adalah kado terindah bagi kami. Namun jika ingin memberikan tanda kasih, silakan melalui link di bawah ini.
+                </p>
+            </div>
+
+            <div class="space-y-6">
+                <!-- Card 1 -->
+                <div class="gift-card" data-aos="fade-right">
+                    <div class="flex justify-between items-start mb-8">
+                        <span class="text-xs uppercase tracking-widest font-bold">Bank BCA</span>
+                        <i class="fas fa-credit-card text-xl"></i>
+                    </div>
+                    <p class="text-lg tracking-[3px] mb-2 font-mono" id="acc-1">1234 567 890</p>
+                    <div class="flex justify-between items-end">
+                        <div class="flex flex-col">
+                            <span class="text-[10px] uppercase opacity-60">Atas Nama</span>
+                            <span class="text-xs font-bold uppercase tracking-wider">Candra Wijaya</span>
+                        </div>
+                        <button class="btn-copy" onclick="copyText('1234 567 890')">Salin Rekening</button>
+                    </div>
+                </div>
+
+                <!-- Card 2 -->
+                <div class="gift-card" style="background: linear-gradient(135deg, #a68a64 0%, #3e362e 100%); color: #f4eee0;" data-aos="fade-left">
+                    <div class="flex justify-between items-start mb-8">
+                        <span class="text-xs uppercase tracking-widest font-bold">Bank Mandiri</span>
+                        <i class="fas fa-wallet text-xl"></i>
+                    </div>
+                    <p class="text-lg tracking-[3px] mb-2 font-mono" id="acc-2">987 654 3210</p>
+                    <div class="flex justify-between items-end">
+                        <div class="flex flex-col">
+                            <span class="text-[10px] uppercase opacity-60">Atas Nama</span>
+                            <span class="text-xs font-bold uppercase tracking-wider">Bela Adelia</span>
+                        </div>
+                        <button class="btn-copy" style="background: #f4eee0; color: #3e362e" onclick="copyText('987 654 3210')">Salin Rekening</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- RSVP Section -->
+        <section id="rsvp" class="py-20 px-8">
+            <h2 class="text-center font-hand text-4xl mb-4">Daftar Hadir</h2>
+            <p class="text-center text-xs mb-10 opacity-70">Konfirmasi kehadiran Anda dalam perayaan kami.</p>
+            
+            <div class="bg-white p-6 rounded shadow-lg border-t-4 border-[#a68a64]" data-aos="zoom-in">
+                <form class="space-y-4">
+                    <div>
+                        <label class="text-[10px] uppercase font-bold opacity-60 ml-1">Nama Lengkap</label>
+                        <input type="text" placeholder="Contoh: Bpk. Budi & Istri" class="w-full border-b border-black/10 p-2 outline-none focus:border-[#a68a64] text-sm bg-transparent">
+                    </div>
+                    <div>
+                        <label class="text-[10px] uppercase font-bold opacity-60 ml-1">Konfirmasi</label>
+                        <select class="w-full border-b border-black/10 p-2 outline-none focus:border-[#a68a64] text-sm bg-transparent">
+                            <option>Hadir</option>
+                            <option>Ragu-ragu</option>
+                            <option>Berhalangan</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="text-[10px] uppercase font-bold opacity-60 ml-1">Pesan & Doa</label>
+                        <textarea placeholder="Tuliskan harapan baik Anda..." class="w-full border-b border-black/10 p-2 outline-none focus:border-[#a68a64] text-sm bg-transparent h-24"></textarea>
+                    </div>
+                    <button class="w-full bg-[#3e362e] text-white py-4 uppercase text-[10px] tracking-widest font-bold hover:bg-[#a68a64] transition-colors rounded">Kirim Konfirmasi</button>
+                </form>
+            </div>
+        </section>
+
+        <footer class="py-20 text-center text-[#a68a64] px-8">
+            <p class="font-hand text-3xl mb-4">Terima Kasih</p>
+            <p class="text-sm italic font-serif opacity-70 mb-10 leading-relaxed">
+                Merupakan suatu kehormatan dan kebahagiaan bagi kami apabila Bapak/Ibu/Saudara/i berkenan hadir dan memberikan doa restu.
+            </p>
+            <div class="h-[1px] w-20 bg-[#a68a64] mx-auto mb-6"></div>
+            <p class="text-[9px] uppercase tracking-[5px] opacity-40">Desigen by gemini_wedding</p>
+        </footer>
+    </div>
+
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script>
+        // Start Function
+        function startInvitation() {
+            document.getElementById('cover').classList.add('cover-hidden');
+            document.body.classList.remove('overflow-hidden');
+            document.getElementById('bgm').play();
+            AOS.init({ 
+                duration: 1000, 
+                once: true,
+                offset: 100
+            });
+        }
+
+        // Copy Feature
+        function copyText(text) {
+            const temp = document.createElement('input');
+            document.body.appendChild(temp);
+            temp.value = text;
+            temp.select();
+            document.execCommand('copy');
+            document.body.removeChild(temp);
+            
+            const toast = document.getElementById('toast');
+            toast.style.display = 'block';
+            setTimeout(() => { toast.style.display = 'none'; }, 2000);
+        }
+
+        // Countdown
+        const weddingDate = new Date("Oct 25, 2026 08:00:00").getTime();
+        setInterval(() => {
+            const now = new Date().getTime();
+            const diff = weddingDate - now;
+            if(diff > 0) {
+                document.getElementById('d').innerText = Math.floor(diff / (1000 * 60 * 60 * 24));
+                document.getElementById('h').innerText = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                document.getElementById('m').innerText = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+            }
+        }, 1000);
+
+        // Active Scroll Navigation
+        window.addEventListener('scroll', () => {
+            let current = "";
+            const sections = document.querySelectorAll('section');
+            sections.forEach(s => {
+                if (pageYOffset >= s.offsetTop - 300) current = s.getAttribute('id');
+            });
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.classList.remove('active');
+                if (btn.getAttribute('href') === `#${current}`) btn.classList.add('active');
+            });
+        });
+    </script>
+</body>
+</html>
